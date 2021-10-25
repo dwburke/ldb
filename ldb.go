@@ -19,7 +19,7 @@ type Config struct {
 
 type DB struct {
 	conn   *leveldb.DB
-	config Config
+	config *Config
 }
 
 func NewLdb(config *Config) (*DB, error) {
