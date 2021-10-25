@@ -51,6 +51,8 @@ func (this *DB) Close() {
 	}
 }
 
+// TODO too many get/sets's... consolidate
+
 func (this *DB) GetObj(key string, value interface{}) error {
 	v, err := this.conn.Get([]byte(key), nil)
 
