@@ -28,14 +28,18 @@ func NewLdb(config *Config) (*DB, error) {
 	}
 
 	conn, err := leveldb.OpenFile(config.Datadir, nil)
+	if err != nil {
+		return nil, err
+	}
 
 	db := &DB{
-		conn: conn,
+		conn:   conn,
+		config: config,
 	}
 
 	ldb_conn = db
 
-	return db, err
+	return db, nil
 }
 
 func (this *DB) Close() {
