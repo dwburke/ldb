@@ -3,31 +3,31 @@ package ldb
 import (
 	"bytes"
 	"encoding/gob"
-	"fmt"
+	"log"
 
-	"github.com/dwburke/go-tools"
 	"github.com/spf13/cast"
-	"github.com/spf13/viper"
 	"github.com/syndtr/goleveldb/leveldb"
 	leveldb_errors "github.com/syndtr/goleveldb/leveldb/errors"
 )
 
 var ldb_conn *DB
 
+type Config struct {
+	Datadir         string
+	ErrorOnNotFound bool
+}
+
 type DB struct {
-	conn *leveldb.DB
+	conn   *leveldb.DB
+	config Config
 }
 
-func init() {
-	viper.SetDefault("db.leveldb.datadir", tools.HomeDir()+"/.config/caterpillar/keystore")
-}
-
-func Open() (*DB, error) {
+func NewLdb(config *Config) (*DB, error) {
 	if ldb_conn != nil {
 		return ldb_conn, nil
 	}
 
-	conn, err := leveldb.OpenFile(viper.GetString("db.leveldb.datadir"), nil)
+	conn, err := leveldb.OpenFile(config.Datadir, nil)
 
 	db := &DB{
 		conn: conn,
@@ -41,7 +41,7 @@ func Open() (*DB, error) {
 func (this *DB) Close() {
 	if this.conn != nil {
 		if err := this.conn.Close(); err != nil {
-			fmt.Println(err)
+			log.Println(err)
 		}
 		this.conn = nil
 	}
@@ -51,7 +51,7 @@ func (this *DB) GetObj(key string, value interface{}) error {
 	v, err := this.conn.Get([]byte(key), nil)
 
 	if err != nil {
-		if err == leveldb_errors.ErrNotFound {
+		if err == leveldb_errors.ErrNotFound && !this.config.ErrorOnNotFound {
 			return nil
 		}
 
@@ -83,7 +83,7 @@ func (this *DB) Get(key string) (string, error) {
 	value, err := this.conn.Get([]byte(key), nil)
 
 	if err != nil {
-		if err == leveldb_errors.ErrNotFound {
+		if err == leveldb_errors.ErrNotFound && !this.config.ErrorOnNotFound {
 			return "", nil
 		}
 		return "", err
