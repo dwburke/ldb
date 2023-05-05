@@ -132,3 +132,17 @@ func (this *DB) SetInt64(key string, value int64) error {
 func (this *DB) SetInt(key string, value int) error {
 	return this.Set(key, cast.ToString(value))
 }
+
+func (this *DB) List() (map[string]interface{}, error) {
+	list := make(map[string]interface{})
+	iter := this.conn.NewIterator(nil, nil)
+
+	for iter.Next() {
+		list[string(iter.Key())] = iter.Value()
+	}
+
+	iter.Release()
+	err := iter.Error()
+
+	return list, err
+}
