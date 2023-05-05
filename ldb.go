@@ -51,6 +51,10 @@ func (this *DB) Close() {
 	}
 }
 
+func (this *DB) Delete(key string) error {
+	return this.conn.Delete([]byte(key), nil)
+}
+
 // TODO too many get/sets's... consolidate
 
 func (this *DB) GetObj(key string, value interface{}) error {
