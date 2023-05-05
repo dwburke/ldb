@@ -133,12 +133,12 @@ func (this *DB) SetInt(key string, value int) error {
 	return this.Set(key, cast.ToString(value))
 }
 
-func (this *DB) List() (map[string]interface{}, error) {
-	list := make(map[string]interface{})
+func (this *DB) List() (map[string]string, error) {
+	list := make(map[string]string)
 	iter := this.conn.NewIterator(nil, nil)
 
 	for iter.Next() {
-		list[string(iter.Key())] = iter.Value()
+		list[string(iter.Key())] = string(iter.Value())
 	}
 
 	iter.Release()
